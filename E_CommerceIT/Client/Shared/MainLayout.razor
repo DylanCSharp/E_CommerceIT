@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+
+@using Blazored.Toast.Configuration
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4">
+            <TopRow/>
+        </div>
+
+        <div class="content px-4">
+            <div class="container-fluid">
+                <div class="card border-0 shadow my-5" style="min-height: 78vh; border-radius: 50px;">
+                    <div class="card-body p-5 justify-content-center align-self-auto" style="margin-top: 2vh;">
+                        <div class="form-group text-md-center text-lg-left text-sm-center">
+                            @Body
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="3" IconType="IconType.Material" />

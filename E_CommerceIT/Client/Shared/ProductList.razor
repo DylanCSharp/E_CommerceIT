@@ -1,0 +1,48 @@
+﻿@inject HttpClient Http
+
+@if (products == null)
+{
+    <h2><em>Loading products...</em></h2>
+}
+else
+{
+    <ul class="list-unstyled">
+        <Virtualize Context="item" Items="products">
+            <li>
+                <div class="container-fluid">
+                    <a id="link" href="/product/@item.ProductId.ToString()" >
+                        <h5 style="margin-top: 2vh;">@item.ProductName</h5>
+                        <p>@item.ProductDescription</p>
+                        <img class="img-thumbnail" style="max-height: 15vh;  border-radius: 15px;" id="image" src="@item.ProductImage" alt="@item.ProductName" />
+                        <p style="margin-top: 2vh; color: teal; font-weight: bold">R @item.ProductPrice</p>
+                    </a>
+                </div>
+
+            </li>
+    </Virtualize>
+    </ul>
+}
+
+<style>
+    #image:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    #link {
+        text-decoration: none;
+        display: inline-block;
+        color: black;
+        border: none;
+    }
+</style>
+
+@code {
+
+    List<Product> products = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>>("Product/GetAllProducts");
+    }
+
+}

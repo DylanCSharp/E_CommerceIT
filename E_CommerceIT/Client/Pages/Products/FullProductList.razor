@@ -1,0 +1,39 @@
+﻿@page "/allproducts"
+
+@inject HttpClient Http
+
+@if (Context == "Admin")
+{
+    <h2>You are logged in as Admin</h2>
+    <h3>Click on the products to View Details</h3>
+    <ProductList />
+}
+else if (Context == "Customer")
+{
+    <h2>You are logged in as Customer</h2>
+    <h3>Click on the products to View Details</h3>
+    <ProductList />
+}
+else
+{
+    <h2>You are not logged in</h2>
+    <h3>Click on the products to View Details</h3>
+    <ProductList />
+}
+
+@code{
+
+    [Parameter]
+    public string CategoryUrl { get; set; }
+
+    public string Context { get; set; }
+    private string Message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Context = await Http.GetStringAsync("General/GetSessionState");
+
+    }
+
+
+}

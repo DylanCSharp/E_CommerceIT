@@ -1,0 +1,41 @@
+﻿@page "/product/{productId}"
+
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject IToastService ToastService
+@inject ICartService CartService
+
+
+<div class="col">
+<img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage"/>
+<h5 style="margin-top: 2vh;">@product.ProductName</h5>
+<h6>@product.ProductDescription</h6>
+<h6>R @product.ProductPrice</h6>
+<button class="btn btn-outline-primary" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add to Cart</button>
+</div>
+@code {
+
+    [Parameter]
+    public string ProductID { get; set; }
+
+    private string Message;
+
+    private Product product = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ProductID == "" || ProductID == null)
+        {
+            Message = "Product ID has not been passed";
+        }
+        else
+        {
+            product = await Http.GetFromJsonAsync<Product>("Product/GetProductById/" + ProductID.ToString());
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        await CartService.AddToCart(product);
+    }
+}
