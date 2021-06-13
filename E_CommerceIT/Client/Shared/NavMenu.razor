@@ -1,4 +1,8 @@
 ﻿@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ICartService CartService
+@inject NavigationManager navManager
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="" style="color: black;"><img class="img-fluid" style="height: 2.3rem; padding-left: 3vh;" src="/images/icone.png" />-<img class="img-fluid" style="height: 2.3rem;" src="/images/logo2.png" />ommerce</a>
@@ -14,6 +18,7 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
+        <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="allproducts" Match="NavLinkMatch.All">
                 <span class="oi oi-box" aria-hidden="true"></span> All Products
@@ -34,11 +39,25 @@
                 </li>
             }
         }
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
-                <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Login
-            </NavLink>
-        </li>
+        <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
+        <AuthorizeView>
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Login
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <a class="nav-link" href="" @onclick="Logout">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+                    </a>
+                </li>
+            </Authorized>
+            <NotAuthorized>
+                Sorry, you do not have access to this page.
+            </NotAuthorized>
+        </AuthorizeView>
+
     </ul>
 </div>
 
@@ -46,6 +65,7 @@
 
     private bool collapseNavMenu = true;
     private List<Category> categories;
+    private Users newUser = new();
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -57,5 +77,13 @@
     protected override async Task OnInitializedAsync()
     {
         categories = await Http.GetFromJsonAsync<List<Category>>("General/GetCategories");
+    }
+
+    private async Task Logout()
+    {
+        await Http.PostAsJsonAsync<Users>("User/ClearUser", newUser);
+        await LocalStorage.RemoveItemAsync("cart");
+        navManager.NavigateTo("Login", true);
+        await AuthStateProvider.GetAuthenticationStateAsync();
     }
 }

@@ -2,27 +2,26 @@
 @inject ICartService CartService
 @implements IDisposable
 
+
 <a href="cart" class="btn btn-info">
     <i class="oi oi-cart"></i>
     Cart
     <span class="badge badge-pill badge-light">@ProductCount()</span>
 </a>
 
-@code {        
+@code {
 
     protected override void OnInitialized()
     {
         CartService.OnChange += StateHasChanged;
     }
-
     public void Dispose()
     {
         CartService.OnChange -= StateHasChanged;
     }
-
     private int ProductCount()
     {
-        var cart =  LocalStorage.GetItem<List<Product>>("cart");
+        var cart = LocalStorage.GetItem<List<Product>>("cart");
         return cart != null ? cart.Count : 0;
     }
 }

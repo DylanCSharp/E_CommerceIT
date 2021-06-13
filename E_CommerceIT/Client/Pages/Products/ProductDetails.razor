@@ -1,37 +1,86 @@
 ﻿@page "/product/{productId}"
-
 @inject HttpClient Http
 @inject ILocalStorageService LocalStorage
 @inject IToastService ToastService
 @inject ICartService CartService
+@inject AuthenticationStateProvider AuthStateProvider
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <Authorized>
+        @if (isAdmin)
+        {
+        <div class="col">
+            <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
+            <h5 style="margin-top: 2vh;">@product.ProductName</h5>
+            <h6>@product.ProductDescription</h6>
+            <h6>R @product.ProductPrice</h6>
+            <button class="btn btn-secondary"><i class="oi oi-pencil"></i>&nbsp;&nbsp;&nbsp;Edit</button>
+            <button class="btn btn-danger"><i class="oi oi-trash"></i>&nbsp;&nbsp;&nbsp;Delete</button>
+        </div>
+        }
+        @if (isCustomer)
+        {
+            <div class="col">
+                <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
+                <h5 style="margin-top: 2vh;">@product.ProductName</h5>
+                <h6>@product.ProductDescription</h6>
+                <h6>R @product.ProductPrice</h6>
+                <button class="btn btn-primary" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add To Cart</button>
+            </div>
+        }
+        @if (isReadOnly)
+         {
+            <div class="col">
+            <h4>Login to Shop!</h4>
+            <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
+            <h5 style="margin-top: 2vh;">@product.ProductName</h5>
+            <h6>@product.ProductDescription</h6>
+            <h6>R @product.ProductPrice</h6>
+            </div>
+         }
+    </Authorized>
+    <NotAuthorized>
+        Sorry, you do not have access to this page
+    </NotAuthorized>
+</AuthorizeView>
 
 
-<div class="col">
-<img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage"/>
-<h5 style="margin-top: 2vh;">@product.ProductName</h5>
-<h6>@product.ProductDescription</h6>
-<h6>R @product.ProductPrice</h6>
-<button class="btn btn-outline-primary" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add to Cart</button>
-</div>
 @code {
 
     [Parameter]
     public string ProductID { get; set; }
-
     private string Message;
-
+    private bool isAdmin;
+    private bool isCustomer;
+    private bool isReadOnly;
     private Product product = new();
+
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
+    private AuthenticationState authState;
+    private ClaimsPrincipal authUser;
 
     protected override async Task OnInitializedAsync()
     {
-        if (ProductID == "" || ProductID == null)
+        product = await Http.GetFromJsonAsync<Product>("Product/GetProductById/" + ProductID.ToString());
+        authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        authUser = authState.User;
+        _claims = authUser.Claims;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
         {
-            Message = "Product ID has not been passed";
+            isAdmin = true;
         }
-        else
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer") == true)
         {
-            product = await Http.GetFromJsonAsync<Product>("Product/GetProductById/" + ProductID.ToString());
+            isCustomer = true;
         }
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isReadOnly") == true)
+        {
+            isReadOnly = true;
+        }
+
     }
 
     private async Task AddToCart()

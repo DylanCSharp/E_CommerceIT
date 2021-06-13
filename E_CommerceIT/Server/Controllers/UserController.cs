@@ -1,14 +1,11 @@
 ﻿using E_CommerceIT.Shared.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+
 using System.Text;
+
 
 namespace E_CommerceIT.Server.Controllers
 {
@@ -17,6 +14,7 @@ namespace E_CommerceIT.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        public static Users GLOBALUSER { get; set; } = new();
 
         public UserController(IConfiguration configuration)
         {
@@ -59,18 +57,24 @@ namespace E_CommerceIT.Server.Controllers
 
                 commandTwo.Dispose();
                 conn.Close();
-
-                if (user.isAdmin == 1 && user.isCustomer == 0)
-                {
-                    HttpContext.Session.SetString("isAdmin", user.UserId.ToString());
-                }
-                else if (user.isAdmin == 0 && user.isCustomer == 1)
-                {
-                    HttpContext.Session.SetString("isCustomer", user.UserId.ToString());
-                }
             }
 
+            GLOBALUSER = user;
             return user;
         }
-    }
+
+        [HttpGet]
+        public ActionResult<Users> GetGlobalUser()
+        {
+            return GLOBALUSER;
+        }
+
+        [HttpPost]
+        public Users ClearUser()
+        {
+            GLOBALUSER = new();
+
+            return GLOBALUSER;
+        }
+    }  
 }

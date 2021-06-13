@@ -2,53 +2,64 @@
 
 @inject HttpClient Http
 @inject NavigationManager navManager
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
 
-@using System.Text; 
+@using System.Text;
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 
-<div class="container-fluid pt-5" style="max-width: 60vh;">
+<div class="container-fluid" style="max-width: 60vh;">
     <h1 class="font-weight-light text-center">Login to your account!</h1>
-        <h5>@Message</h5>
+    <h5>@Message</h5>
+    <EditForm Model="user" OnValidSubmit="LoginUser">
         <div class="form-group">
-            <label for="inputEmail">Email address *</label>
-            <input type="email" class="form-control" id="inputEmail" @bind="Email" required>
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            <label for="email">Email Address:</label>
+            <InputText id="email" type="email" @bind-Value="user.UserEmail" class="form-control" required />
         </div>
         <div class="form-group">
-            <label for="inputPassword">Password *</label>
-            <input type="password" class="form-control" id="inputPassword" @bind="Password" required>
+            <label for="password">Password:</label>
+            <InputText id="password" type="password" @bind-Value="Password" class="form-control" required />
         </div>
-        <div class="text-center">
-            <button class="btn btn-primary" @onclick="LoginUser">Login</button>
-        </div>
+        <button class="btn btn-primary" type="submit">Login</button>
+    </EditForm>
 </div>
 
 
 @code {
 
-    public string Email { get; set; }
     public string Password { get; set; }
     public string Message { get; set; }
     private Users user = new();
+    private IEnumerable<Claim> _claims = Enumerable.Empty<Claim>();
 
     private async Task LoginUser()
     {
         try
         {
+            Message = null;
             byte[] barr = Encoding.ASCII.GetBytes(Password);
-            user.UserEmail = Email;
             user.UserPassword = barr;
             await Http.PostAsJsonAsync("User/ValidateUser", user);
-            user = new();
-            Email = null;
-            Password = null;
-            navManager.NavigateTo("/");
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var authUser = authState.User;
+            if (authUser.Identity.IsAuthenticated)
+            {
+                _claims = authUser.Claims;
+                navManager.NavigateTo("allproducts");
+            }
+            else
+            {
+                Message = "Not Authenticated";
+            }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Message = ex.Message;
-            StateHasChanged();
         }
     }
+
+
 
 }
 
