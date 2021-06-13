@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Syncfusion.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -21,6 +22,7 @@ namespace E_CommerceIT.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDQyMTQxQDMxMzkyZTMxMmUzMGpZbXFRQVNZOFRpVjlnL3EyOFdiQnZpN2Eway8rZjc2VDZFZU1tTjVoWVk9");
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddBlazoredLocalStorage();
@@ -28,6 +30,7 @@ namespace E_CommerceIT.Client
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<AuthenticationStateProvider, UserAuthProvider>();
+            builder.Services.AddSyncfusionBlazor();
 
             await builder.Build().RunAsync();
         }

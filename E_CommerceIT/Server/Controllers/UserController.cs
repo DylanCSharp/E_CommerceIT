@@ -51,8 +51,8 @@ namespace E_CommerceIT.Server.Controllers
                 while (reader.Read())
                 {
                     user.UserId = (int)reader["userId"];
-                    user.isAdmin = (int)reader["isAdmin"];
-                    user.isCustomer = (int)reader["isCustomer"];
+                    user.IsAdmin = (int)reader["isAdmin"];
+                    user.IsCustomer = (int)reader["isCustomer"];
                 }
 
                 commandTwo.Dispose();

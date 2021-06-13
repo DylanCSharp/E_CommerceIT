@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Syncfusion.Blazor;
 using System;
 using System.Linq;
 
@@ -34,7 +35,15 @@ namespace E_CommerceIT.Server
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-            services.AddControllersWithViews();
+            services.AddCors(policy =>
+            {
+                policy.AddPolicy("CorsPolicy", opt => opt
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+            });
+            services.AddSyncfusionBlazor();
+            services.AddControllers();
             services.AddRazorPages();
             services.AddBlazoredToast();
         }
@@ -61,6 +70,7 @@ namespace E_CommerceIT.Server
 
             app.UseRouting();
             app.UseSession();
+            app.UseCors("CorsPolicy");
 
             app.UseEndpoints(endpoints =>
             {

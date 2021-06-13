@@ -28,7 +28,7 @@ namespace E_CommerceIT.Client
             Users user = new();
             user = await _http.GetFromJsonAsync<Users>("User/GetGlobalUser");
 
-            if (user.isAdmin == 1 && user.isCustomer == 0)
+            if (user.IsAdmin == 1 && user.IsCustomer == 0)
             {
                 var adminClaims = new List<Claim>
                 {
@@ -43,7 +43,7 @@ namespace E_CommerceIT.Client
 
                 return state;
             }
-            else if(user.isAdmin == 0 && user.isCustomer == 1)
+            else if(user.IsAdmin == 0 && user.IsCustomer == 1)
             {
                 var customerClaims = new List<Claim>
                 {
