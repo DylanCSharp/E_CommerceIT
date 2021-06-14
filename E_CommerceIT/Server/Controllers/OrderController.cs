@@ -1,4 +1,5 @@
 ﻿using E_CommerceIT.Shared.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -88,6 +89,31 @@ namespace E_CommerceIT.Server.Controllers
             conn.Close();
 
             return orders;
+        }
+
+        [HttpPost("")]
+        public CartItem FinalCheckOut(CartItem cartItem)
+        {
+            int id = UserController.GLOBALUSER.UserId;
+
+            SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+
+            conn.Open();
+
+            SqlCommand command = new("SELECT ECM.CATEGORY.categoryId FROM ECM.PRODUCTS INNER JOIN ECM.CATEGORY ON ECM.PRODUCTS.categoryId = ECM.CATEGORY.categoryId where productId = "+cartItem.ProductId+"", conn);
+            int categoryId = (int)command.ExecuteScalar();
+            int month = DateTime.Now.Month;
+            int year = DateTime.Now.Year;
+
+            command.Dispose();
+
+            SqlCommand commandTwo = new("INSERT INTO ECM.ORDER_HISTORY VALUES ("+cartItem.ProductId+", "+id+", "+categoryId+", "+month+", "+year+")", conn);
+            commandTwo.ExecuteNonQuery();
+            commandTwo.Dispose();
+
+            conn.Close();
+
+            return cartItem;
         }
     }
 }

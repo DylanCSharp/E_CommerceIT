@@ -1,0 +1,89 @@
+﻿@page "/checkout"
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ICartService CartService
+@inject HttpClient Http 
+@inject IToastService ToastService
+@inject NavigationManager navManager
+
+@if (isCustomer)
+{
+    @Message
+    @if (cartItems == null || cartItems.Count <= 0)
+    {
+        <span style="margin: 1vh;">You have no items in your cart...</span>
+    }
+    else
+    {
+        <p style="margin-bottom: 4vh; margin-left: 1vh;">These are the items in your cart...</p>
+        <div class="container-fluid text-center" style="max-width: 60vh;">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <td>Product Name:</td>
+                        <td>Product Price:</td>
+                        <td>Product Image:</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <Virtualize Context="items" Items="@cartItems">
+                        <tr>
+                            <td>@items.ProductName</td>
+                            <td>R @items.ProductPrice</td>
+                            <td><img class="img-thumbnail" style="max-height: 15vh;" src="@items.ProductImage" /></td>
+                        </tr>
+                    </Virtualize>
+                </tbody>
+            </table>
+        </div>
+        <div class="item-price">
+            Total (@cartItems.Count): R @cartItems.Sum(item => item.ProductPrice)
+        </div>
+        <br />
+        <button class="btn btn-secondary rounded-pill" style="width: 150px" @onclick="CheckOut">CHECKOUT</button>
+    }
+}
+else
+{
+    <h5>Sorry, you do not have access to this page.</h5>
+}
+
+
+@code {
+
+    List<CartItem> cartItems;
+    public bool isCustomer { get; set; } = false;
+    public string Message { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems = await CartService.GetCartItems();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer"))
+        {
+            isCustomer = true;
+        }
+    }
+
+    private async Task CheckOut()
+    {
+        try
+        {
+            foreach (var item in cartItems)
+            {
+                await Http.PostAsJsonAsync("Order/FinalCheckOut", item);
+            }
+            await LocalStorage.RemoveItemAsync("cart");
+            navManager.NavigateTo("cart", true);
+        }
+        catch(Exception ex)
+        {
+            Message = ex.Message;
+        }
+    }
+
+
+}
+

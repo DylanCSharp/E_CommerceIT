@@ -2,6 +2,7 @@
 
 @inject ICartService CartService
 @inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager navManager 
 
 
 <AuthorizeView>
@@ -41,6 +42,13 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="item-price">
+                    Total (@cartItems.Count): R @cartItems.Sum(item => item.ProductPrice)
+                </div>
+                <br />
+                <div style="text-align: center; margin-top: 10px;">
+                    <button class="btn btn-primary rounded-pill" style="width: 150px;" @onclick="PlacedOrder">Proceed to Checkout!</button>
+                </div>
             }
         }
         else if (isAdmin == true)
@@ -67,6 +75,7 @@
     public bool isCustomer { get; set; } = false;
     public bool isAdmin { get; set; }
     public bool isReadOnly { get; set; }
+    public decimal TotalPrice { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,6 +103,11 @@
     {
         await CartService.DeleteItem(item);
         cartItems = await CartService.GetCartItems();
+    }
+
+    private void PlacedOrder()
+    {
+        navManager.NavigateTo("checkout");
     }
 
 
