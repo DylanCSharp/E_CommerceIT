@@ -1,50 +1,93 @@
 ﻿@page "/cart"
 
 @inject ICartService CartService
+@inject AuthenticationStateProvider AuthStateProvider
 
-<h3 style="color: teal; margin: 1vh;">Your Shopping Cart</h3>
 
-@if (cartItems == null || cartItems.Count <= 0)
-{
-    <span style="margin: 1vh;">You have no items in your cart...</span>
-}
-else
-{
-    <p style="margin-bottom: 4vh; margin-left: 1vh;">These are the items in your cart...</p>
-    <div class="container-fluid">
-        <table class="table table-responsive">
-            <thead>
-                <tr>
-                    <td>Product Name:</td>
-                    <td>Product Price:</td>
-                    <td>Product Image:</td>
-                    <td></td>
-                </tr>
-            </thead>
-            <tbody>
-                <Virtualize Context="items" Items="@cartItems">
-                    <tr>
-                        <td>@items.ProductName</td>
-                        <td>R @items.ProductPrice</td>
-                        <td><img class="img-thumbnail" style="max-height: 15vh;" src="@items.ProductImage"/></td>
-                        <td>
-                            <button class="btn btn-danger btn-sm" @onclick="@(() => DeleteItem(items))">Delete</button>
-                        </td>
-                    </tr>
-                </Virtualize>
-            </tbody>
-        </table>
-    </div>
-}
+<AuthorizeView>
+    <Authorized>
+
+        @if (isCustomer == true)
+        {
+            <h3 style="color: teal; margin: 1vh;">Your Shopping Cart</h3>
+            @if (cartItems == null || cartItems.Count <= 0)
+            {
+                <span style="margin: 1vh;">You have no items in your cart...</span>
+            }
+            else
+            {
+                <p style="margin-bottom: 4vh; margin-left: 1vh;">These are the items in your cart...</p>
+                <div class="container-fluid">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <td>Product Name:</td>
+                                <td>Product Price:</td>
+                                <td>Product Image:</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <Virtualize Context="items" Items="@cartItems">
+                                <tr>
+                                    <td>@items.ProductName</td>
+                                    <td>R @items.ProductPrice</td>
+                                    <td><img class="img-thumbnail" style="max-height: 15vh;" src="@items.ProductImage" /></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" @onclick="@(() => DeleteItem(items))">Delete</button>
+                                    </td>
+                                </tr>
+                            </Virtualize>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else if (isAdmin == true)
+        {
+            <h4 class="bg-warning">Notice:</h4>
+            <h5>Employee, you need to login to your customer account to access this page.</h5>
+        }
+        else if (isReadOnly == true)
+        {
+            <h4 class="bg-warning">Notice:</h4>
+            <h5>Please create an account or login to your account to access this page.</h5>
+        }
+    </Authorized>
+    <NotAuthorized>
+        Sorry, you cannot access this page.
+    </NotAuthorized>
+</AuthorizeView>
+
 
 
 @code {
 
     List<CartItem> cartItems;
+    public bool isCustomer { get; set; } = false;
+    public bool isAdmin { get; set; }
+    public bool isReadOnly { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         cartItems = await CartService.GetCartItems();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer") == true)
+        {
+            isCustomer = true;
+            StateHasChanged();
+        }
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
+        {
+            isAdmin = true;
+            StateHasChanged();
+        }
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isReadOnly") == true)
+        {
+            isReadOnly = true;
+            StateHasChanged();
+        }
     }
 
     private async Task DeleteItem(CartItem item)
@@ -52,5 +95,6 @@ else
         await CartService.DeleteItem(item);
         cartItems = await CartService.GetCartItems();
     }
+
 
 }

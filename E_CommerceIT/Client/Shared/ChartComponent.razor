@@ -1,0 +1,74 @@
+﻿@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Charts
+@inject NavigationManager NavigationManager
+@inject HttpClient Http 
+<style>
+    #chart_Series_0_Point_2_Symbol {
+        -webkit-animation: opac 1s ease-out infinite;
+        animation: opac 1s ease-out infinite;
+    }
+
+    #chart_Series_2_Point_0_Symbol {
+        -webkit-animation: opac 1s ease-out infinite;
+        animation: opac 1s ease-in-out infinite;
+    }
+
+    @@keyframes opac {
+        0% {
+            stroke-opacity: 1;
+            stroke-width: 0px;
+        }
+
+        100% {
+            stroke-opacity: 0;
+            stroke-width: 10px;
+        }
+    }
+</style>
+<h3 class="text-center">Order History</h3>
+<div class="control-section">
+    <SfChart ID="chart" Title="" Theme="@Theme">
+        <div class="text-center">
+            Product Category: <b>@Category</b>
+            <br />
+            Year Selected : <b>@YearSelected</b>
+        </div>
+        <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+        <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Interval="1" LabelIntersectAction="LabelIntersectAction.Rotate90">
+            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+        </ChartPrimaryXAxis>
+        <ChartPrimaryYAxis LabelFormat="{value}">
+            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+        </ChartPrimaryYAxis>
+        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+        <ChartSeriesCollection>
+            <ChartSeries DataSource="@SplineData" Name="@Category" XName="Month" Width="2"
+                         Opacity="1" YName="Count" Type="ChartSeriesType.Spline">
+                <ChartMarker Visible="true" Width="10" Height="10">
+                </ChartMarker>
+            </ChartSeries>
+        </ChartSeriesCollection>
+    </SfChart>
+</div>
+
+@code{
+
+    [Parameter]
+    public string Category { get; set; }
+    [Parameter]
+    public string YearSelected { get; set; }
+
+    private string Sun = "Sun", Tue = "Tue";
+    private Theme Theme { get; set; }
+
+    public List<SplineChartData> SplineData = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        SplineData = await Http.GetFromJsonAsync<List<SplineChartData>>($"Product/GetSplineData/{Category.ToString()}/{YearSelected.ToString()}");
+        Theme = Theme.Fabric;
+
+    }
+}

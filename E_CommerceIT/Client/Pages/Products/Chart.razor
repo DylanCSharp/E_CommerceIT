@@ -1,111 +1,42 @@
-﻿@page "/chart"
+﻿@page "/chart/{categoryType}/{yearSelected}"
 
-@using Syncfusion.Blazor
-@using Syncfusion.Blazor.Charts
-@inject NavigationManager NavigationManager 
+@inject AuthenticationStateProvider AuthStateProvider 
 
-<style>
-    #chart_Series_0_Point_2_Symbol {
-        -webkit-animation: opac 1s ease-out infinite;
-        animation: opac 1s ease-out infinite;
-    }
-
-    #chart_Series_2_Point_0_Symbol {
-        -webkit-animation: opac 1s ease-out infinite;
-        animation: opac 1s ease-in-out infinite;
-    }
-
-    @@keyframes opac {
-        0% {
-            stroke-opacity: 1;
-            stroke-width: 0px;
-        }
-
-        100% {
-            stroke-opacity: 0;
-            stroke-width: 10px;
-        }
-    }
-</style>
-<div class="control-section">
-    <SfChart ID="chart" Title="NC Weather Report - 2016" Theme="@Theme">
-        <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
-        <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Interval="1" LabelIntersectAction="LabelIntersectAction.Rotate90">
-            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
-        </ChartPrimaryXAxis>
-        <ChartPrimaryYAxis LabelFormat="{value}°C">
-            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
-            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
-        </ChartPrimaryYAxis>
-        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
-        <ChartSeriesCollection>
-            <ChartSeries DataSource="@SplineData" Name="Max Temp" XName="Days" Width="2"
-                         Opacity="1" YName="MaxTemp" Type="ChartSeriesType.Spline">
-                <ChartMarker Visible="true" Width="10" Height="10">
-                </ChartMarker>
-            </ChartSeries>
-            <ChartSeries DataSource="@SplineData" Name="Avg Temp" XName="Days" Width="2"
-                         Opacity="1" YName="AvgTemp" Type="ChartSeriesType.Spline">
-                <ChartMarker Visible="true" Width="10" Height="10">
-                </ChartMarker>
-            </ChartSeries>
-            <ChartSeries DataSource="@SplineData" Name="Min Temp" XName="Days" Width="2"
-                         Opacity="1" YName="MinTemp" Type="ChartSeriesType.Spline">
-                <ChartMarker Visible="true" Width="10" Height="10">
-                </ChartMarker>
-            </ChartSeries>
-        </ChartSeriesCollection>
-        <ChartAnnotations>
-            <ChartAnnotation X="@Sun" Y="5" CoordinateUnits="Units.Point">
-                <ContentTemplate><div><img src="images/chart/cloud.png" style="width: 41px; height: 41px" /></div></ContentTemplate>
-            </ChartAnnotation>
-            <ChartAnnotation X="@Tue" Y="35" CoordinateUnits="Units.Point">
-                <ContentTemplate><div><img src="images/chart/sunny.png" style="width: 41px; height: 41px" /></div></ContentTemplate>
-            </ChartAnnotation>
-        </ChartAnnotations>
-    </SfChart>
-</div>
-@code{
-    private string Sun = "Sun", Tue = "Tue";
-    private Theme Theme { get; set; }
-    public List<SplineChartData> SplineData = new List<SplineChartData>
-{
-        new SplineChartData { Days = "Sun", MaxTemp = 15, AvgTemp = 10, MinTemp = 2 },
-        new SplineChartData { Days = "Mon", MaxTemp = 22, AvgTemp = 18, MinTemp = 12 },
-        new SplineChartData { Days = "Tue", MaxTemp = 32, AvgTemp = 28, MinTemp = 22 },
-        new SplineChartData { Days = "Wed", MaxTemp = 31, AvgTemp = 28, MinTemp = 23 },
-        new SplineChartData { Days = "Thu", MaxTemp = 29, AvgTemp = 26, MinTemp = 19 },
-        new SplineChartData { Days = "Fri", MaxTemp = 24, AvgTemp = 20, MinTemp = 13 },
-        new SplineChartData { Days = "Sat", MaxTemp = 18, AvgTemp = 15, MinTemp = 8 }
-    };
-    protected override void OnInitialized()
-    {
-        if (NavigationManager.Uri.IndexOf("material") > -1)
+<AuthorizeView>
+    <Authorized>
+        @if (isAdmin)
         {
-            Theme = Theme.Material;
-        }
-        else if (NavigationManager.Uri.IndexOf("fabric") > -1)
-        {
-            Theme = Theme.Fabric;
-        }
-        else if (NavigationManager.Uri.IndexOf("bootstrap") > -1)
-        {
-            Theme = Theme.Bootstrap;
-        }
-        else if (NavigationManager.Uri.IndexOf("highcontrast") > -1)
-        {
-            Theme = Theme.HighContrast;
+            <ChartComponent Category="@CategoryType" YearSelected="@YearSelected" />
         }
         else
         {
-            Theme = Theme.Bootstrap4;
+            <h5 class="text-center">Sorry, you cannot access this page</h5>
         }
-    }
-    public class SplineChartData
+    </Authorized>
+    <NotAuthorized>
+        Sorry, you cannot access this page.
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code{
+    [Parameter]
+    public string CategoryType { get; set; }
+
+    [Parameter]
+    public string YearSelected { get; set; }
+
+    public bool isAdmin { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        public string Days { get; set; }
-        public double MaxTemp { get; set; }
-        public double AvgTemp { get; set; }
-        public double MinTemp { get; set; }
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
+        {
+            isAdmin = true;
+            StateHasChanged();
+        }
     }
 }

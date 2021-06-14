@@ -46,7 +46,7 @@
             if (authUser.Identity.IsAuthenticated)
             {
                 _claims = authUser.Claims;
-                navManager.NavigateTo("allproducts");
+                navManager.NavigateTo("allproducts", true);
             }
             else
             {

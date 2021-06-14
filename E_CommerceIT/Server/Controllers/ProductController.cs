@@ -33,7 +33,7 @@ namespace E_CommerceIT.Server.Controllers
             };
             conn.Open();
             SqlDataReader reader = command.ExecuteReader();
-            while(reader.Read())
+            while (reader.Read())
             {
                 Product product = new()
                 {
@@ -90,7 +90,7 @@ namespace E_CommerceIT.Server.Controllers
         {
             List<Product> products = new();
             using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
-            SqlCommand command = new("SELECT ECM.PRODUCTS.productId, ECM.PRODUCTS.productName, ECM.PRODUCTS.productDescription, ECM.PRODUCTS.productImage, ECM.PRODUCTS.productPrice, ECM.PRODUCTS.productCreated FROM ECM.PRODUCTS INNER JOIN ECM.CATEGORY ON ECM.PRODUCTS.categoryId = ECM.CATEGORY.categoryId where ecm.CATEGORY.categoryUrl = '"+categoryurl+"'", conn)
+            SqlCommand command = new("SELECT ECM.PRODUCTS.productId, ECM.PRODUCTS.productName, ECM.PRODUCTS.productDescription, ECM.PRODUCTS.productImage, ECM.PRODUCTS.productPrice, ECM.PRODUCTS.productCreated FROM ECM.PRODUCTS INNER JOIN ECM.CATEGORY ON ECM.PRODUCTS.categoryId = ECM.CATEGORY.categoryId where ecm.CATEGORY.categoryUrl = '" + categoryurl + "'", conn)
             {
                 CommandType = CommandType.Text
             };
@@ -116,6 +116,73 @@ namespace E_CommerceIT.Server.Controllers
 
             return products;
         }
-        
+
+        [HttpGet("{category}/{year}")]
+        public async Task<ActionResult<List<SplineChartData>>> GetSplineData(string category, string year)
+        {
+            List<SplineChartData> splineData = new();
+
+            using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+            await conn.OpenAsync();
+            SqlCommand command = new();
+            for (int month = 1; month <= 12; month++)
+            {
+                command = new("SELECT COUNT(ECM.ORDER_HISTORY.categoryId) as Count from ECM.ORDER_HISTORY INNER JOIN ECM.CATEGORY ON ECM.ORDER_HISTORY.categoryId = ECM.CATEGORY.categoryId WHERE orderDate = " + month + " AND categoryType = '" + category + "' AND orderYear = "+Convert.ToInt32(year)+"", conn)
+                {
+                    CommandType = CommandType.Text
+                };
+
+                SplineChartData chartData = new();
+                chartData.Category = category;
+                chartData.Count = (int)await command.ExecuteScalarAsync();
+                switch (month)
+                {
+                    case 1:
+                        chartData.Month = "January";
+                        break;
+                    case 2:
+                        chartData.Month = "February";
+                        break;
+                    case 3:
+                        chartData.Month = "March";
+                        break;
+                    case 4:
+                        chartData.Month = "April";
+                        break;
+                    case 5:
+                        chartData.Month = "May";
+                        break;
+                    case 6:
+                        chartData.Month = "June";
+                        break;
+                    case 7:
+                        chartData.Month = "July";
+                        break;
+                    case 8:
+                        chartData.Month = "August";
+                        break;
+                    case 9:
+                        chartData.Month = "September";
+                        break;
+                    case 10:
+                        chartData.Month = "October";
+                        break;
+                    case 11:
+                        chartData.Month = "November";
+                        break;
+                    case 12:
+                        chartData.Month = "December";
+                        break;
+                }
+
+                splineData.Add(chartData);
+            };
+
+            await command.DisposeAsync();
+            await conn.CloseAsync();
+
+            return splineData;
+        }
     }
 }
+

@@ -1,0 +1,68 @@
+﻿@page "/chartlist"
+
+@inject HttpClient Http
+@inject NavigationManager navManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+@if (isAdmin == false)
+{
+    <h5 class="text-center">Sorry, you do not have access to this page</h5>
+}
+else
+{
+<div class="container-fluid">
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <td>Category Name:</td>
+                <td>Icon:</td>
+                <td>Choose Year:</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Context="items" Items="@categories">
+                <tr>
+                    <td>@items.CategoryType</td>
+                    <td><i class="oi oi-@items.CategoryIcon"></i></td>
+                    <td><select class="custom-select" @bind="year"><option value="2020">2020</option><option value="2021">2021</option></select></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" @onclick="@(() => ViewChart(items.CategoryType, year))">View!</button>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+}
+
+
+@code {
+
+    private List<Category> categories;
+    private int year = 2020;
+
+    public string YearSelected { get; set; }
+    public bool isAdmin { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Http.GetFromJsonAsync<List<Category>>("General/GetCategories");
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
+        {
+            isAdmin = true;
+            StateHasChanged();
+        }
+
+    }
+
+    private void ViewChart(string categorytype, int year)
+    {
+        YearSelected = year.ToString();
+        navManager.NavigateTo($"chart/{categorytype.ToString()}/{YearSelected.ToString()}");
+    }
+
+
+}
