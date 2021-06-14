@@ -1,4 +1,6 @@
 ﻿@page "/userprofile"
+
+@inject NavigationManager navManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject HttpClient Http
 
@@ -40,7 +42,7 @@
     <p></p>
     <p></p>
     <h4 style="margin-top: 5vh;">View Previous Orders</h4>
-    <button class="btn btn-info rounded-pill" style="width: 150px;">View!</button>
+    <button class="btn btn-info rounded-pill" style="width: 150px;" @onclick="ViewTransactions">View!</button>
 </div>
 }
 @if (isReadOnly)
@@ -59,6 +61,7 @@
     public string Email { get; set; }
     public string Message { get; set; }
     private Users updatedUser = new();
+    public string UserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,8 +84,6 @@
         {
             isReadOnly = true;
         }
-
-
     }
 
     private async Task Edit()
@@ -90,6 +91,19 @@
         await Http.PutAsJsonAsync($"User/EditProfile/{Email.ToString()}", updatedUser);
         await OnInitializedAsync();
         Message = "Updated Successfully";
+    }
+
+    private async Task ViewTransactions()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer"))
+        {
+            Email = authUser.Identity.Name.ToString();
+            isCustomer = true;
+            UserId = updatedUser.UserId.ToString();
+            navManager.NavigateTo($"userprofile/{UserId.ToString()}");
+        }
     }
 
 }
