@@ -5,7 +5,7 @@
 @inject NavigationManager navManager
 
 <div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="" style="color: black;"><img class="img-fluid" style="height: 2.3rem; padding-left: 3vh;" src="/images/icone.png" />-<img class="img-fluid" style="height: 2.3rem;" src="/images/logo2.png" />ommerce</a>
+    <a class="navbar-brand" href="" style="color: #b8c8d0"><img class="img-fluid" style="height: 2rem; padding-left: 2vh;" src="/images/logo3.png" />&nbsp;E-Commerce</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -57,7 +57,14 @@
                         <span class="oi oi-account-login" aria-hidden="true"></span> Login
                     </NavLink>
                 </li>
-                
+                @if (isAdmin == false && isCustomer == false)
+                { 
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="register" Match="NavLinkMatch.All">
+                        <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Register
+                    </NavLink>
+                </li>
+                }
                 @if (isAdmin == true || isCustomer == true)
                 {
                 <li class="nav-item px-3">
@@ -81,7 +88,7 @@
     private List<Category> categories;
     private Users newUser = new();
     public bool isAdmin { get; set; } = false;
-    public bool isCustomer { get; set; }
+    public bool isCustomer { get; set; } = false;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

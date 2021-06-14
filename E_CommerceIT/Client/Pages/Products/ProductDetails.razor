@@ -12,40 +12,51 @@
     <Authorized>
         @if (isAdmin)
         {
-        <div class="col">
-            <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
-            <h5 style="margin-top: 2vh;">@product.ProductName</h5>
-            <h6>@product.ProductDescription</h6>
-            <h6>R @product.ProductPrice</h6>
-            <button class="btn btn-secondary"><i class="oi oi-pencil"></i>&nbsp;&nbsp;&nbsp;Edit</button>
-            <button class="btn btn-danger"><i class="oi oi-trash"></i>&nbsp;&nbsp;&nbsp;Delete</button>
-        </div>
+            <div class="col">
+                <img class="img-thumbnail" id="image" style="max-height: 20vh;" src="@product.ProductImage" />
+                <h5 style="margin-top: 2vh;">@product.ProductName</h5>
+                <h6>@product.ProductDescription</h6>
+                <h6 style="color: teal; font-weight: bold">R @product.ProductPrice</h6>
+                <button class="btn btn-secondary rounded-pill" style="width: 150px;"><i class="oi oi-pencil"></i>&nbsp;&nbsp;&nbsp;Edit</button>
+                <button class="btn btn-danger rounded-pill" style="width: 150px;"><i class="oi oi-trash"></i>&nbsp;&nbsp;&nbsp;Delete</button>
+            </div>
         }
         @if (isCustomer)
         {
             <div class="col">
-                <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
+                <img class="img-thumbnail" id="image" style="max-height: 20vh;" src="@product.ProductImage" />
                 <h5 style="margin-top: 2vh;">@product.ProductName</h5>
                 <h6>@product.ProductDescription</h6>
-                <h6>R @product.ProductPrice</h6>
-                <button class="btn btn-primary" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add To Cart</button>
+                <h6 style="color: teal; font-weight: bold">R @product.ProductPrice</h6>
+                <button class="btn btn-primary rounded-pill" style="width: 150px;" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add To Cart</button>
             </div>
         }
         @if (isReadOnly)
-         {
+        {
             <div class="col">
-            <h4>Login to Shop!</h4>
-            <img class="img-thumbnail" style="max-height: 15vh;" src="@product.ProductImage" />
-            <h5 style="margin-top: 2vh;">@product.ProductName</h5>
-            <h6>@product.ProductDescription</h6>
-            <h6>R @product.ProductPrice</h6>
+                <h4 style="color: teal">Login to Shop!</h4>
+                <p></p>
+                <img class="img-thumbnail" id="image" style="max-height: 20vh;" src="@product.ProductImage" />
+                <h5 style="margin-top: 2vh;">@product.ProductName</h5>
+                <h6>@product.ProductDescription</h6>
+                <h6 style="color: teal; font-weight: bold">R @product.ProductPrice</h6>
             </div>
-         }
+        }
     </Authorized>
     <NotAuthorized>
         Sorry, you do not have access to this page
     </NotAuthorized>
 </AuthorizeView>
+<style>
+    #image:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .img-thumbnail {
+        border-radius: 15px;
+    }
+</style>
+
 
 
 @code {

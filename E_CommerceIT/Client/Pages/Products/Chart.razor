@@ -6,7 +6,9 @@
     <Authorized>
         @if (isAdmin)
         {
+            <div class="container-fluid">
             <ChartComponent Category="@CategoryType" YearSelected="@YearSelected" />
+            </div>
         }
         else
         {

@@ -15,19 +15,21 @@ else
         <thead>
             <tr>
                 <td>Category Name:</td>
-                <td>Icon:</td>
+                <td></td>
                 <td>Choose Year:</td>
+                <td></td>
                 <td></td>
             </tr>
         </thead>
         <tbody>
             <Virtualize Context="items" Items="@categories">
                 <tr>
-                    <td>@items.CategoryType</td>
-                    <td><i class="oi oi-@items.CategoryIcon"></i></td>
+                    <td><i class="oi oi-@items.CategoryIcon"></i>&nbsp; @items.CategoryType</td>
+                    <td></td>
                     <td><select class="custom-select" @bind="year"><option value="2020">2020</option><option value="2021">2021</option></select></td>
+                    <td></td>
                     <td>
-                        <button class="btn btn-secondary btn-sm" @onclick="@(() => ViewChart(items.CategoryType, year))">View!</button>
+                        <button class="btn btn-secondary rounded-pill" style="width: 150px;" @onclick="@(() => ViewChart(items.CategoryType, year))">View!</button>
                     </td>
                 </tr>
             </Virtualize>

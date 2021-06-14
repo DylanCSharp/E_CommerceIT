@@ -59,7 +59,6 @@
     [Parameter]
     public string YearSelected { get; set; }
 
-    private string Sun = "Sun", Tue = "Tue";
     private Theme Theme { get; set; }
 
     public List<SplineChartData> SplineData = new();
@@ -67,8 +66,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Theme = Theme.Bootstrap;
         SplineData = await Http.GetFromJsonAsync<List<SplineChartData>>($"Product/GetSplineData/{Category.ToString()}/{YearSelected.ToString()}");
-        Theme = Theme.Fabric;
+
 
     }
 }

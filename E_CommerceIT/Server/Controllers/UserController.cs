@@ -76,5 +76,35 @@ namespace E_CommerceIT.Server.Controllers
 
             return GLOBALUSER;
         }
+
+        [HttpPost]
+        public Users RegisterUser(Users newUser)
+        {
+            using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+
+            conn.Open();
+
+            SqlCommand command = new("ECM.PROC_REGISTER", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            string password = Encoding.ASCII.GetString(newUser.UserPassword, 0, newUser.UserPassword.Length);
+
+            command.Parameters.AddWithValue("@firstName", newUser.UserFirstName);
+            command.Parameters.AddWithValue("@lastName", newUser.UserLastName);
+            command.Parameters.AddWithValue("@email", newUser.UserEmail);
+            command.Parameters.AddWithValue("@password", password);
+            command.Parameters.AddWithValue("@Admin", 0);
+            command.Parameters.AddWithValue("@Customer", 1);
+
+            command.ExecuteNonQuery();
+
+            command.Dispose();
+            conn.Close();
+
+            ValidateUser(newUser);
+
+            return newUser;
+        }
     }  
 }
