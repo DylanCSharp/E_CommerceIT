@@ -21,6 +21,7 @@ namespace E_CommerceIT.Server.Controllers
             _configuration = configuration;
         }
 
+        //VALIDATES USER
         [HttpPost]
         public Users ValidateUser(Users user)
         {
@@ -41,6 +42,7 @@ namespace E_CommerceIT.Server.Controllers
 
             command.Dispose();
 
+            //IF RESULT IS 1 THEN THE USER EXISTS AND IS AUTHENTICATED
             if (loginResult == 1)
             {
                 SqlCommand commandTwo = new("SELECT userId, isAdmin, isCustomer, userFirstName FROM ECM.USERS WHERE userEmail = '"+user.UserEmail+"'", conn)
@@ -64,6 +66,7 @@ namespace E_CommerceIT.Server.Controllers
             return user;
         }
 
+        //SETTING A GLOBAL USER WHEN THE USER LOGS IN SO THAT WE CAN EASILY GET USER INFO FROM ANYWHERE
         [HttpGet]
         public ActionResult<Users> GetGlobalUser()
         {
@@ -78,6 +81,8 @@ namespace E_CommerceIT.Server.Controllers
             return GLOBALUSER;
         }
 
+
+        //REGISTERING NEW USER WITH HASH AND SALT ALGORITHM IN SQL STORED PROCEDURE
         [HttpPost]
         public Users RegisterUser(Users newUser)
         {
@@ -108,6 +113,8 @@ namespace E_CommerceIT.Server.Controllers
             return newUser;
         }
 
+
+        //GETTING USER DEPENDING ON THEIR EMAIL WHICH IS UNIQUE IN THE DB
         [HttpGet("{email}")]
         public ActionResult<Users> GetUserByEmail(string email)
         {
@@ -134,6 +141,7 @@ namespace E_CommerceIT.Server.Controllers
             return user;
         }
 
+        //ALLOWING USER TO EDIT THEIR INFO
         [HttpPut("{email}")]
         public Users EditProfile(Users editedUser)
         {

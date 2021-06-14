@@ -24,7 +24,7 @@ namespace E_CommerceIT.Client
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-
+            //AUTHENTICATES THE USER AND ASSIGNS ROLES AND CLAIMS SO USERS CAN ACCESS THE APPROPRIATE INFORMATION DEPENDING ON ROLE
             Users user = new();
             user = await _http.GetFromJsonAsync<Users>("User/GetGlobalUser");
 

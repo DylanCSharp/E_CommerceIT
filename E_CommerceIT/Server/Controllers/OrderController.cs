@@ -22,6 +22,7 @@ namespace E_CommerceIT.Server.Controllers
             _configuration = configuration;
         }
 
+
         [HttpGet("{userId}")]
         public ActionResult<List<CustomOrderHistory>> GetOrderHistoryForUser(string userId)
         {
@@ -32,6 +33,7 @@ namespace E_CommerceIT.Server.Controllers
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
+                //CUSTOM ORDER HISTORY CLASS MODEL THAT IS MADE FOR THE TABLE
                 CustomOrderHistory history = new();
 
                 history.OrderNum = (int)reader["orderNum"];
@@ -42,6 +44,7 @@ namespace E_CommerceIT.Server.Controllers
                 history.OrderYear = (int)reader["orderYear"];
                 history.ProductPrice = (decimal)reader["productPrice"];
 
+                //GETTING THE MONTHS FOR THE TABLE BECAUSE MONTHS STORED AS INTS IN DB
                 switch (history.OrderDate)
                 {
                     case 1:
@@ -94,6 +97,7 @@ namespace E_CommerceIT.Server.Controllers
         [HttpPost("")]
         public CartItem FinalCheckOut(CartItem cartItem)
         {
+            //cHECKING OUT AND ADDING TO THE ORDER HISTORY
             int id = UserController.GLOBALUSER.UserId;
 
             SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));

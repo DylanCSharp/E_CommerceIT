@@ -25,6 +25,7 @@ namespace E_CommerceIT.Server.Controllers
         [HttpGet]
         public ActionResult<List<Category>> GetCategories()
         {
+            //GETTING ALL THE CATEGORIES WHEN NEEDED
             List<Category> categories = new();
 
             using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));

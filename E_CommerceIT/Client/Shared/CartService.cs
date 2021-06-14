@@ -25,6 +25,8 @@ namespace E_CommerceIT.Client.Shared
             _http = httpClient;
         }
 
+
+        //ADDING TO LOCAL STORAGE SO DATA DOESNT HAVE TO BE WRITTEN TO DB ALL THE TIME WHEN USER ADDS TO CART THEN DECIDES TO DELETE
         public async Task AddToCart(Product product)
         {
             var cart = await _localStorage.GetItemAsync<List<Product>>("cart");
@@ -40,6 +42,7 @@ namespace E_CommerceIT.Client.Shared
             OnChange.Invoke();
         }
 
+        //GETTING ALL THE ITEMS IN THE LOCAL STORAGE CART
         public async Task<List<CartItem>> GetCartItems()
         {
             var result = new List<CartItem>();
@@ -66,6 +69,7 @@ namespace E_CommerceIT.Client.Shared
             return result;
         }
 
+        //DELETING AN ITEM FROM THE LOCAL STORAGE
         public async Task DeleteItem(CartItem item)
         {
             var cart = await _localStorage.GetItemAsync<List<Product>>("cart");

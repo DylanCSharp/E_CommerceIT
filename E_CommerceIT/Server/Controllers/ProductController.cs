@@ -28,6 +28,8 @@ namespace E_CommerceIT.Server.Controllers
         [HttpGet]
         public ActionResult<List<Product>> GetAllProducts()
         {
+            //GETTING ALL THE PRODUCTS IN THE DB
+
             List<Product> products = new();
 
             using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
@@ -58,6 +60,7 @@ namespace E_CommerceIT.Server.Controllers
             return products;
         }
 
+        //GETTING THE DETAILS OF EACH PRODUCT SELECTED
         [HttpGet("{id}")]
         public ActionResult<Product> GetProductById(int id)
         {
@@ -89,6 +92,7 @@ namespace E_CommerceIT.Server.Controllers
             return product;
         }
 
+        //ALLOWING THE USER TO SEARCH THROUGH THE DIFFERENT PRODUCTS CATEGORIES
         [HttpGet("{categoryUrl}")]
         public ActionResult<List<Product>> GetProductPerCategory(string categoryurl)
         {
@@ -126,6 +130,8 @@ namespace E_CommerceIT.Server.Controllers
         {
             List<SplineChartData> splineData = new();
 
+            //SPLINE DATA CLASS WE USE AS A MODEL TO MAKE THE SPLINE GRAPH USING SYNCFUSION CONTROLS FOR BLAZOR
+
             using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
             await conn.OpenAsync();
             SqlCommand command = new();
@@ -138,7 +144,11 @@ namespace E_CommerceIT.Server.Controllers
 
                 SplineChartData chartData = new();
                 chartData.Category = category;
+
+                //GETS THE COUNT
                 chartData.Count = (int)await command.ExecuteScalarAsync();
+
+                //GETTING THE MONTHS FOR THE TABLE BECAUSE MONTHS STORED AS INTS IN DB
                 switch (month)
                 {
                     case 1:
@@ -188,6 +198,7 @@ namespace E_CommerceIT.Server.Controllers
             return splineData;
         }
 
+        //ADDING A NEW PRODUCT ONLY ADMINS CAN ACCESS THIS
         [HttpPost]
         public Product AddProduct(Product newProduct)
         {
@@ -202,6 +213,8 @@ namespace E_CommerceIT.Server.Controllers
             return newProduct;
         }
 
+
+        //UPLOADING THE IMAGE WHEN ADDING A NEW PRODUCT
         [HttpPost]
         public async Task<ActionResult> Upload()
         {
