@@ -21,7 +21,7 @@
         <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="allproducts" Match="NavLinkMatch.All">
-                <span class="oi oi-box" aria-hidden="true"></span> All Products
+                <span class="oi oi-box" aria-hidden="true"></span> All
             </NavLink>
         </li>
         @if (categories == null)
@@ -41,37 +41,47 @@
         }
         @if (isAdmin == true)
         {
-        <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="chartlist" Match="NavLinkMatch.All">
-                <span class="oi oi-bar-chart" aria-hidden="true"></span> Category Charts
-            </NavLink>
-        </li>
+            <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="chartlist" Match="NavLinkMatch.All">
+                    <span class="oi oi-bar-chart" aria-hidden="true"></span> Charts
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="additem" Match="NavLinkMatch.All">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Add Product
+                </NavLink>
+            </li>
         }
         <li style="border-top: 1px solid slategrey" class="dropdown-divider"></li>
         <AuthorizeView>
             <Authorized>
-                
-                <li class="nav-item px-3">
-                    <NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
-                        <span class="oi oi-account-login" aria-hidden="true"></span> Login
-                    </NavLink>
-                </li>
+
                 @if (isAdmin == false && isCustomer == false)
-                { 
-                <li class="nav-item px-3">
-                    <NavLink class="nav-link" href="register" Match="NavLinkMatch.All">
-                        <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Register
-                    </NavLink>
-                </li>
+                {
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
+                            <span class="oi oi-account-login" aria-hidden="true"></span> Login
+                        </NavLink>
+                    </li>
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="register" Match="NavLinkMatch.All">
+                            <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Register
+                        </NavLink>
+                    </li>
                 }
                 @if (isAdmin == true || isCustomer == true)
                 {
-                <li class="nav-item px-3">
-                    <a class="nav-link" href="" @onclick="Logout">
-                        <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
-                    </a>
-                </li>
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="userprofile" Match="NavLinkMatch.All">
+                            <span class="oi oi-person" aria-hidden="true"></span>@Name
+                        </NavLink>
+                    </li>
+                    <li class="nav-item px-3">
+                        <a class="nav-link" href="" @onclick="Logout">
+                            <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+                        </a>
+                    </li>
                 }
             </Authorized>
             <NotAuthorized>
@@ -89,6 +99,7 @@
     private Users newUser = new();
     public bool isAdmin { get; set; } = false;
     public bool isCustomer { get; set; } = false;
+    public string Name { get; set; }
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -104,11 +115,13 @@
         if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
         {
             isAdmin = true;
+            Name = authUser.Identity.Name;
             StateHasChanged();
         }
         if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer") == true)
         {
             isCustomer = true;
+            Name = authUser.Identity.Name;
             StateHasChanged();
         }
     }

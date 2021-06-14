@@ -1,0 +1,95 @@
+﻿@page "/userprofile"
+@inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+
+
+@if (isAdmin)
+{
+    <div class="container-fluid text-center" style="max-width: 60vh;">
+        <h4 style="margin-bottom: 10vh;">Welcome to your Profile!</h4>
+        <p style="color: teal">@Message</p>
+        <EditForm Model="@updatedUser" OnValidSubmit="Edit">
+            <div class="form-group">
+                <label for="name">First Name:</label>
+                <InputText id="name" type="text" @bind-Value="updatedUser.UserFirstName" placeholder="..." class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="surname">Surname:</label>
+                <InputText id="surname" type="text" @bind-Value="updatedUser.UserLastName" placeholder="..." class="form-control" required />
+            </div>
+            <button class="btn btn-secondary rounded-pill" style="width: 150px">Update</button>
+        </EditForm>
+    </div>
+}
+@if (isCustomer)
+{
+<div class="container-fluid text-center" style="max-width: 60vh;">
+    <h4 style="margin-bottom: 5vh;">Welcome to your Profile!</h4>
+    <p style="color: teal">@Message</p>
+    <EditForm Model="@updatedUser" OnValidSubmit="Edit">
+        <div class="form-group">
+            <label for="name">First Name:</label>
+            <InputText id="name" type="text" @bind-Value="updatedUser.UserFirstName" placeholder="..." class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="surname">Surname:</label>
+            <InputText id="surname" type="text" @bind-Value="updatedUser.UserLastName" placeholder="..." class="form-control" required />
+        </div>
+        <button class="btn btn-secondary rounded-pill" style="width: 150px">Update!</button>
+    </EditForm>
+    <p></p>
+    <p></p>
+    <h4 style="margin-top: 5vh;">View Previous Orders</h4>
+    <button class="btn btn-info rounded-pill" style="width: 150px;">View!</button>
+</div>
+}
+@if (isReadOnly)
+{ 
+    <div class="container-fluid text-center" style="max-width: 60vh;">
+    <h4 class="bg-warning">Notice:</h4>
+    <h5>Please create an account first. Thank you!</h5>
+    </div>
+}
+
+@code {    
+
+    public bool isAdmin { get; set; } = false;
+    public bool isCustomer { get; set; } = false;
+    public bool isReadOnly { get; set; } = false;
+    public string Email { get; set; }
+    public string Message { get; set; }
+    private Users updatedUser = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Message = "";
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin"))
+        {
+            Email = authUser.Identity.Name.ToString();
+            isAdmin = true;
+            updatedUser = await Http.GetFromJsonAsync<Users>($"User/GetUserByEmail/{Email.ToString()}");
+        }
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isCustomer"))
+        {
+            Email = authUser.Identity.Name.ToString();
+            isCustomer = true;
+            updatedUser = await Http.GetFromJsonAsync<Users>($"User/GetUserByEmail/{Email.ToString()}");
+        }
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isReadOnly"))
+        {
+            isReadOnly = true;
+        }
+
+
+    }
+
+    private async Task Edit()
+    {
+        await Http.PutAsJsonAsync($"User/EditProfile/{Email.ToString()}", updatedUser);
+        await OnInitializedAsync();
+        Message = "Updated Successfully";
+    }
+
+}

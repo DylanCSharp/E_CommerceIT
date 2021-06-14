@@ -3,12 +3,13 @@
 @inject HttpClient Http
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager navManager
+@inject IToastService ToastService
 
 @using System.Text 
 
-<div class="text-center container-fluid" style="max-width: 60vh;">
+<div class="text-center container-fluid" style="max-width: 60vh; margin-top: 5vh;`">
     <EditForm Model="newUser" OnValidSubmit="RegisterUser">
-        <h3 class="font-weight-light">Register an E-Commerce Account with Us!</h3>
+        <h3 class="font-weight-light" style="margin-bottom: 5vh;">Register an E-Commerce Account with Us!</h3>
         <div class="form-group">
             <label for="email">First Name:</label>
             <InputText id="email" type="text" @bind-Value="newUser.UserFirstName"  placeholder="..." class="form-control" required />
@@ -41,7 +42,6 @@
         await Http.PostAsJsonAsync("User/RegisterUser", newUser);
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-
-        navManager.NavigateTo("/", true);
+        navManager.NavigateTo("allproducts", true);
     }
 }

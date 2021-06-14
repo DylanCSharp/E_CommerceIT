@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Blazored.Toast.Services;
 
 namespace E_CommerceIT.Server.Controllers
 {
@@ -16,6 +19,7 @@ namespace E_CommerceIT.Server.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private static string URL;
         public ProductController(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -182,6 +186,57 @@ namespace E_CommerceIT.Server.Controllers
             await conn.CloseAsync();
 
             return splineData;
+        }
+
+        [HttpPost]
+        public Product AddProduct(Product newProduct)
+        {
+            using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+            SqlCommand command = new("INSERT INTO ECM.PRODUCTS VALUES('"+newProduct.ProductName+"', '"+newProduct.ProductDescription+"', '"+URL+"', "+newProduct.ProductPrice+", GETDATE(), "+newProduct.CategoryId+")", conn);
+            conn.Open();
+            command.ExecuteNonQuery();
+            URL = null;
+            command.Dispose();
+            conn.Close();
+            
+            return newProduct;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Upload()
+        {
+            try
+            {
+                var formCollection = await Request.ReadFormAsync();
+                var productImage = formCollection.Files[0];
+                if (productImage.Length > 0)
+                {
+                    var container = new BlobContainerClient(_configuration.GetConnectionString("AzureConnectionString"), "productcontainer");
+                    var createResponse = container.CreateIfNotExists();
+                    if (createResponse != null && createResponse.GetRawResponse().Status == 201)
+                    {
+                        container.SetAccessPolicy(PublicAccessType.Blob);
+                    }
+                    var blob = container.GetBlobClient(productImage.FileName);
+                    blob.DeleteIfExists(DeleteSnapshotsOption.IncludeSnapshots);
+                    using (var fileStream = productImage.OpenReadStream())
+                    {
+                        blob.Upload(fileStream, new BlobHttpHeaders { ContentType = productImage.ContentType });
+                    }
+
+                    URL = "https://ecommerceit.blob.core.windows.net/productcontainer/" + productImage.FileName;
+
+                    return Ok(blob.Uri.ToString());
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
         }
     }
 }

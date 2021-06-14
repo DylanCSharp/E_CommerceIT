@@ -33,6 +33,7 @@ namespace E_CommerceIT.Client
                 var adminClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.UserEmail),
+                    new Claim(ClaimTypes.Name, user.UserEmail),
                     new Claim(ClaimTypes.Role, "isAdmin")
                 };
                 var adminClaimsId = new ClaimsIdentity(adminClaims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -48,6 +49,7 @@ namespace E_CommerceIT.Client
                 var customerClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.UserEmail),
+                    new Claim(ClaimTypes.Name, user.UserEmail),
                     new Claim(ClaimTypes.Role, "isCustomer")
                 };
                 var customerClaimsId = new ClaimsIdentity(customerClaims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -63,6 +65,7 @@ namespace E_CommerceIT.Client
                 var readonlyClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, "readonlyuser"),
+                    new Claim(ClaimTypes.Name, ""),
                     new Claim(ClaimTypes.Role, "isReadOnly")
                 };
                 var readonlyClaimsId = new ClaimsIdentity(readonlyClaims, CookieAuthenticationDefaults.AuthenticationScheme);

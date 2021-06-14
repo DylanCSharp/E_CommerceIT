@@ -1,0 +1,99 @@
+﻿@page "/additem"
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+@inject NavigationManager navManager
+@inject IToastService ToastService
+
+@using System.Net.Http.Headers
+
+@if (isAdmin)
+{
+    <div class="form-group">
+        <label for="price">Product Name:</label>
+        <input type="text" @bind-value="newProduct.ProductName" placeholder="..." />
+    </div>
+    <div class="form-group">
+        <label for="price">Product Description:</label>
+        <input type="text" @bind-value="newProduct.ProductDescription" placeholder="..." />
+    </div>
+    <div class="form-group">
+        <label for="price">Product Price:</label>
+        <input type="number" @bind-value="newProduct.ProductPrice" placeholder="..." />
+    </div>
+    <div class="form-group">
+        <label for="price">Product Category:</label>
+        <select @bind="CategoryId">
+            @foreach (var item in categories)
+            {
+                <option value="@item.CategoryId">@item.CategoryType</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="price">Product Image:</label>
+        <InputFile OnChange="@ProductImage" class="btn btn-light" />
+    </div>
+    <button class="btn btn-primary" @onclick="AddItem">ADD</button>
+}
+else
+{
+    <h5>Sorry, you do not have access to this page.</h5>
+}
+
+@code {
+
+    public bool isAdmin { get; set; } = false;
+
+    private Product newProduct = new();
+    List<Category> categories = new();
+    public string Price { get; set; }
+    public int CategoryId { get; set; } = 1;
+    public string Error { get; set; }
+    public string Message { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        if (authUser.Identity.IsAuthenticated && authUser.IsInRole("isAdmin") == true)
+        {
+            isAdmin = true;
+            categories = await Http.GetFromJsonAsync<List<Category>>("General/GetCategories");
+        }
+    }
+
+    private async Task AddItem()
+    {
+        newProduct.CategoryId = CategoryId;
+        await Http.PostAsJsonAsync<Product>("Product/AddProduct", newProduct);
+        ToastService.ShowSuccess("Added: " + newProduct.ProductName, "ADDED NEW PRODUCT");
+        navManager.NavigateTo("allproducts");
+    }
+
+    private async Task ProductImage(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var imageFile = e.File;
+            if (imageFile == null)
+            {
+                return;
+            }
+            var resizedFile = await imageFile.RequestImageFileAsync("image/jpg, image/png, image/jpeg", 300, 500);
+            using (var ms = resizedFile.OpenReadStream(resizedFile.Size))
+            {
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(new StreamContent(ms, Convert.ToInt32(resizedFile.Size)), "image", imageFile.Name);
+                var response = await Http.PostAsync("Product/Upload", content);
+                ms.Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = "Error: " + ex.Message;
+        }
+    }
+}

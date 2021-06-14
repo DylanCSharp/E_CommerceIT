@@ -43,7 +43,7 @@ namespace E_CommerceIT.Server.Controllers
 
             if (loginResult == 1)
             {
-                SqlCommand commandTwo = new("SELECT userId, isAdmin, isCustomer FROM ECM.USERS WHERE userEmail = '"+user.UserEmail+"'", conn)
+                SqlCommand commandTwo = new("SELECT userId, isAdmin, isCustomer, userFirstName FROM ECM.USERS WHERE userEmail = '"+user.UserEmail+"'", conn)
                 {
                     CommandType = CommandType.Text
                 };
@@ -53,6 +53,7 @@ namespace E_CommerceIT.Server.Controllers
                     user.UserId = (int)reader["userId"];
                     user.IsAdmin = (int)reader["isAdmin"];
                     user.IsCustomer = (int)reader["isCustomer"];
+                    user.UserFirstName = reader["userFirstName"].ToString();
                 }
 
                 commandTwo.Dispose();
@@ -105,6 +106,47 @@ namespace E_CommerceIT.Server.Controllers
             ValidateUser(newUser);
 
             return newUser;
+        }
+
+        [HttpGet("{email}")]
+        public ActionResult<Users> GetUserByEmail(string email)
+        {
+            Users user = new();
+
+            using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+            SqlCommand command = new("SELECT * FROM ECM.USERS WHERE userEmail = '"+email+"'", conn);
+            conn.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                user.UserId = (int)reader["userId"];
+                user.UserFirstName = reader["userFirstName"].ToString();
+                user.UserLastName = reader["userLastName"].ToString();
+                user.UserEmail = reader["userEmail"].ToString();
+            }
+
+            command.Dispose();
+            reader.Close();
+            conn.Close();
+
+            return user;
+        }
+
+        [HttpPut("{email}")]
+        public Users EditProfile(Users editedUser)
+        {
+            using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
+            SqlCommand command = new("UPDATE ECM.USERS SET userFirstName = '"+editedUser.UserFirstName+"', userLastName = '"+editedUser.UserLastName+"', userEmail = '"+editedUser.UserEmail+"' WHERE userEmail = '"+editedUser.UserEmail+"'", conn);
+            conn.Open();
+
+            command.ExecuteNonQuery();
+
+            command.Dispose();
+            conn.Close();
+
+            return editedUser;
         }
     }  
 }

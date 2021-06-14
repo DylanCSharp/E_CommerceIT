@@ -23,27 +23,6 @@ namespace E_CommerceIT.Server.Controllers
         }
 
         [HttpGet]
-        public ActionResult<string> GetSessionState()
-        {
-            string context = "";
-
-            if (HttpContext.Session.GetString("isAdmin") != null)
-            {
-                context = "Admin";
-            }
-            else if(HttpContext.Session.GetString("isCustomer") != null)
-            {
-                context = "Customer";
-            }
-            else
-            {
-                context = "";
-            }
-
-            return context;
-        }
-
-        [HttpGet]
         public ActionResult<List<Category>> GetCategories()
         {
             List<Category> categories = new();
