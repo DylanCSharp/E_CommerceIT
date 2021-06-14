@@ -5,6 +5,7 @@
 
 @if (isCustomer)
 {
+    <h3>This is your Order History</h3>
     <div class="container-fluid">
         <table class="table table-responsive">
             <thead>
@@ -13,6 +14,7 @@
                     <td>Product Name:</td>
                     <td>Product Image:</td>
                     <td>Category:</td>
+                    <td>Product Price:</td>
                     <td>Ordered in Month</td>
                     <td>Year:</td>
                     <td></td>
@@ -25,6 +27,7 @@
                         <td>@items.ProductName</td>
                         <td><img class="img-thumbnail" style="max-height: 15vh;" src="@items.ProductImage" /></td>
                         <td>@items.CategoryType</td>
+                        <td>R @items.ProductPrice</td>
                         <td>@items.Month</td>
                         <td>@items.OrderYear</td>
                     </tr>

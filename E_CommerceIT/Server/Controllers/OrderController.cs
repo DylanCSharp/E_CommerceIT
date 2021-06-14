@@ -26,7 +26,7 @@ namespace E_CommerceIT.Server.Controllers
         {
             List<CustomOrderHistory> orders = new();
             using SqlConnection conn = new(_configuration.GetConnectionString("ECommerceDB"));
-            SqlCommand command = new(" SELECT ECM.ORDER_HISTORY.orderNum, ECM.PRODUCTS.productName, ECM.PRODUCTS.productImage, ECM.CATEGORY.categoryType, ECM.ORDER_HISTORY.orderDate, ECM.ORDER_HISTORY.orderYear FROM ECM.PRODUCTS INNER JOIN ECM.CATEGORY ON ECM.PRODUCTS.categoryId = ECM.CATEGORY.categoryId INNER JOIN ECM.ORDER_HISTORY ON ECM.PRODUCTS.productId = ECM.ORDER_HISTORY.productId AND ECM.CATEGORY.categoryId = ECM.ORDER_HISTORY.categoryId INNER JOIN ECM.USERS ON ECM.ORDER_HISTORY.userId = ECM.USERS.userId where ECM.USERS.userId = " + Convert.ToInt32(userId)+"", conn);
+            SqlCommand command = new(" SELECT ECM.ORDER_HISTORY.orderNum, ECM.PRODUCTS.productName, ECM.PRODUCTS.productImage, ECM.CATEGORY.categoryType, ECM.ORDER_HISTORY.orderDate, ECM.ORDER_HISTORY.orderYear, ECM.PRODUCTS.productPrice FROM ECM.PRODUCTS INNER JOIN ECM.CATEGORY ON ECM.PRODUCTS.categoryId = ECM.CATEGORY.categoryId INNER JOIN ECM.ORDER_HISTORY ON ECM.PRODUCTS.productId = ECM.ORDER_HISTORY.productId AND ECM.CATEGORY.categoryId = ECM.ORDER_HISTORY.categoryId INNER JOIN ECM.USERS ON ECM.ORDER_HISTORY.userId = ECM.USERS.userId where ECM.USERS.userId = " + Convert.ToInt32(userId)+"", conn);
             conn.Open();
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
@@ -39,6 +39,7 @@ namespace E_CommerceIT.Server.Controllers
                 history.CategoryType = reader["categoryType"].ToString();
                 history.OrderDate = (int)reader["orderDate"];
                 history.OrderYear = (int)reader["orderYear"];
+                history.ProductPrice = (decimal)reader["productPrice"];
 
                 switch (history.OrderDate)
                 {

@@ -12,6 +12,7 @@ namespace E_CommerceIT.Shared.Models
         public string ProductName { get; set; }
         public string ProductImage { get; set; }
         public string CategoryType { get; set; }
+        public decimal ProductPrice { get; set; }
         public int OrderDate { get; set; }
         public string Month { get; set; }
         public int OrderYear { get; set; }

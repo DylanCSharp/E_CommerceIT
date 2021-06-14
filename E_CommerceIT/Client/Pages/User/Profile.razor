@@ -3,12 +3,13 @@
 @inject NavigationManager navManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject HttpClient Http
+@inject IToastService ToastService 
 
 
 @if (isAdmin)
 {
     <div class="container-fluid text-center" style="max-width: 60vh;">
-        <h4 style="margin-bottom: 10vh;">Welcome to your Profile!</h4>
+        <h4 style="margin-bottom: 5vh;">Welcome to your Profile!</h4>
         <p style="color: teal">@Message</p>
         <EditForm Model="@updatedUser" OnValidSubmit="Edit">
             <div class="form-group">
@@ -90,7 +91,7 @@
     {
         await Http.PutAsJsonAsync($"User/EditProfile/{Email.ToString()}", updatedUser);
         await OnInitializedAsync();
-        Message = "Updated Successfully";
+        ToastService.ShowSuccess(updatedUser.UserFirstName + updatedUser.UserLastName + " has been updated", "Updated Successfully");
     }
 
     private async Task ViewTransactions()
