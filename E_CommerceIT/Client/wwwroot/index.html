@@ -19,7 +19,13 @@
 </head>
 
 <body>
-    <div id="app">Loading...</div>
+    <div id="app">
+        <img id="rotate" class="img-fluid" style="width: 18vh; height: 18vh;" src="images/waiting.png" />
+        <br />
+        <br />
+        <br />
+        <h2 class="font-weight-light" style="color: #ffffff">Loading...</h2>
+    </div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -31,3 +37,16 @@
 </body>
 
 </html>
+<style>
+    #rotate {
+        animation: rotation 2s infinite linear;
+        margin-top: 35vh;
+        text-align: center;
+    }
+
+    #app {
+        text-align: center;
+        background: linear-gradient(0.25turn, #455b62, #455b63, #6f8b96, #ffffff);
+        height: 100vh;
+    }
+</style>
