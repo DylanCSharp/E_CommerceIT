@@ -14,7 +14,7 @@ namespace E_CommerceIT.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public static Users GLOBALUSER { get; set; } = new();
+        internal static Users GLOBALUSER { get; set; } = new();
 
         public UserController(IConfiguration configuration)
         {
